@@ -1,8 +1,14 @@
 import { ButtonGradient } from '../../components/Button'
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 
 import styled from 'styled-components'
 import { useActiveWeb3React } from '../../hooks'
+import { Deposit, InitWeb3 } from 'state/wrap/hooks'
+import ConfirmTransferModal from '../../components/ConfirmTransferModal'
+import { useCrosschainState } from '../../state/crosschain/hooks'
+import { ChainTransferState, setCrosschainTransferStatus, setTransferAmount } from 'state/crosschain/actions'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from 'state'
 
 const InputWrap = styled.div`
   display: flex;
@@ -140,9 +146,13 @@ let web3React: any
 
 export const WrapForm = ({ typeAction }: { typeAction: string }) => {
   web3React = useActiveWeb3React()
+  InitWeb3()
+  const dispatch = useDispatch<AppDispatch>()
 
+  const { crosschainTransferStatus } = useCrosschainState()
   const [wrappedAmount, setWrappedAmount] = useState('')
   const [unWrapdAmount, setUnWrapdAmount] = useState('')
+  const [confirmTransferModalOpen, setConfirmTransferModalOpen] = useState(false)
 
   const getButtonName = () => {
     if (typeAction === 'Wrap') {
@@ -152,6 +162,37 @@ export const WrapForm = ({ typeAction }: { typeAction: string }) => {
     }
   }
 
+  const callHander = () => {
+    setConfirmTransferModalOpen(true)
+    if (typeAction === 'Wrap') {
+      Deposit()
+    }
+  }
+  const hideConfirmTransferModal = () => {
+    setConfirmTransferModalOpen(false)
+  }
+  const onChangeTransferState = (state: ChainTransferState) => {
+    dispatch(
+      setCrosschainTransferStatus({
+        status: state
+      })
+    )
+  }
+  const handleInputAmountChange = useCallback(
+    (amount: string) => {
+      dispatch(
+        setTransferAmount({
+          amount: amount
+        })
+      )
+      if (typeAction === 'Wrap') {
+        setWrappedAmount(amount)
+      } else {
+        setUnWrapdAmount(amount)
+      }
+    },
+    [dispatch]
+  )
   return (
     <>
       <WrapWrap>
@@ -174,33 +215,26 @@ export const WrapForm = ({ typeAction }: { typeAction: string }) => {
                   type="number"
                   name="amount"
                   value={typeAction === 'Wrap' ? wrappedAmount : unWrapdAmount}
-                  onChange={e =>
-                    typeAction === 'Wrap' ? setWrappedAmount(e.target.value) : setUnWrapdAmount(e.target.value)
-                  }
+                  onChange={e => handleInputAmountChange(e.target.value)}
                 />
 
                 <StyledBalanceMax style={{ right: '30%' }}>MAX </StyledBalanceMax>
                 <StyledBalanceMax>Select Token</StyledBalanceMax>
               </InputWrap>
               <ButtonLayout>
-                <ButtonGradient>{getButtonName()}</ButtonGradient>
+                <ButtonGradient onClick={callHander}>{getButtonName()}</ButtonGradient>
               </ButtonLayout>
             </>
           )}
         </>
       </WrapWrap>
-      {/* {!disableCurrencySelect && onCurrencySelect && ( */}
-      {/* <CurrencySearchModal
-            isOpen={modalOpen}
-            onDismiss={handleDismissSearch}
-            onCurrencySelect={handleInputSelect}
-            selectedCurrency={altCurrency}
-            otherSelectedCurrency={otherCurrency}
-            showCommonBases={!isCrossChain}
-            isCrossChain={isCrossChain}
-          /> */}
-      {/* )} */}
-      {/* <PlainPopup isOpen={crossPopupOpen} onDismiss={hidePopupModal} content={popupContent} removeAfterMs={2000} /> */}
+
+      <ConfirmTransferModal
+        isOpen={confirmTransferModalOpen}
+        onDismiss={hideConfirmTransferModal}
+        changeTransferState={onChangeTransferState}
+        tokenTransferState={crosschainTransferStatus}
+      />
     </>
   )
 }
