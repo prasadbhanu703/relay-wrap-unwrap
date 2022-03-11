@@ -1,5 +1,5 @@
 import { ButtonGradient } from '../../components/Button'
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 
 import styled from 'styled-components'
 import { useActiveWeb3React } from '../../hooks'
@@ -163,11 +163,10 @@ export const WrapForm = ({ typeAction }: { typeAction: string }) => {
   }
 
   const callHander = () => {
+    wrapUnWrap(typeAction)
     setConfirmTransferModalOpen(true)
-    if (typeAction === 'Wrap') {
-      wrapUnWrap(typeAction)
-    }
   }
+
   const hideConfirmTransferModal = () => {
     setConfirmTransferModalOpen(false)
   }
@@ -193,6 +192,7 @@ export const WrapForm = ({ typeAction }: { typeAction: string }) => {
     },
     [dispatch]
   )
+  console.log(crosschainTransferStatus)
   return (
     <>
       <WrapWrap>

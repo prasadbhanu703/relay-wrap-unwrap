@@ -35,7 +35,7 @@ export const wrapUnWrap = async (typeAction: string) => {
 
     let resultDepositTx: any
 
-    if(typeAction == 'wrap'){
+    if(typeAction !== 'Wrap'){
       resultDepositTx = await wrapContract.deposit({ value: wrapValue })
     } else{
       resultDepositTx = await wrapContract.withdraw(wrapValue)
