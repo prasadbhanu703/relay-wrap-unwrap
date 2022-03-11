@@ -73,7 +73,7 @@ export const returnWrappedToken = (chainId: any) => {
   }
 }
 
-export const getBalance = async (account: any, address: any) => {
+export const getBalance = async (account: any, address: string) => {
   try {
     const signer = web3React.library.getSigner()
 

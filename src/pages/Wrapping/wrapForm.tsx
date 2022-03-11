@@ -6,7 +6,7 @@ import { useActiveWeb3React, useEagerConnect } from '../../hooks'
 
 import { getBalance, wrapUnWrap, InitWeb3, returnWrappedLogo, returnWrappedToken } from 'state/wrap/hooks'
 import ConfirmTransferModal from '../../components/ConfirmTransferModal'
-import { useCrosschainState } from '../../state/crosschain/hooks'
+import { useCrosschainState, WithDecimals } from '../../state/crosschain/hooks'
 import {
   ChainTransferState,
   setAvailableTokens,
@@ -171,7 +171,7 @@ export const WrapForm = ({ typeAction }: { typeAction: string }) => {
   const [wrapUnwrap, setWrapUnwrap] = useState(false)
   const [isSuccessAuth, userEthBalance] = useEagerConnect()
   const wrappedToken = returnWrappedToken(chainId)
-  const [balance, setBalance] = useState(0)
+  const [balance, setBalance] = useState('0')
 
   const handleDismissSearch = useCallback(() => {
     setModalOpen(false)
@@ -222,7 +222,7 @@ export const WrapForm = ({ typeAction }: { typeAction: string }) => {
   }
   const balanceFun = async () => {
     const bal = await getBalance(account, wrappedToken.address)
-    setBalance(parseInt(bal))
+    bal && setBalance(WithDecimals(bal))
   }
   useEffect(() => {
     balanceFun()
@@ -255,10 +255,9 @@ export const WrapForm = ({ typeAction }: { typeAction: string }) => {
                   onChange={e => handleInputAmountChange(e.target.value)}
                 />
 
-                <StyledBalanceMax style={{ right: '25%' }}>MAX </StyledBalanceMax>
+                {/* <StyledBalanceMax style={{ right: '25%' }}>MAX </StyledBalanceMax> */}
 
                 <StyledBalanceMax>
-                  {/* <StyledEthereumLogo  size="30px" style={style} /> */}
                   <img
                     src={returnWrappedLogo(chainId)}
                     style={{ verticalAlign: 'middle', height: '20px', width: '25px', paddingRight: '5px' }}
