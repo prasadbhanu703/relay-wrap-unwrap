@@ -1,14 +1,23 @@
 import { ButtonGradient } from '../../components/Button'
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 
 import styled from 'styled-components'
-import { useActiveWeb3React } from '../../hooks'
-import { Deposit, InitWeb3 } from 'state/wrap/hooks'
+import { useActiveWeb3React, useEagerConnect } from '../../hooks'
+import { Deposit, getBalance, InitWeb3, returnWrappedLogo, returnWrappedToken, tokenList } from 'state/wrap/hooks'
 import ConfirmTransferModal from '../../components/ConfirmTransferModal'
 import { useCrosschainState } from '../../state/crosschain/hooks'
-import { ChainTransferState, setCrosschainTransferStatus, setTransferAmount } from 'state/crosschain/actions'
+import {
+  ChainTransferState,
+  setAvailableTokens,
+  setCrosschainTransferStatus,
+  setCurrentToken,
+  setTransferAmount
+} from 'state/crosschain/actions'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from 'state'
+import { CurrencySearch } from 'components/SearchModal/CurrencySearch'
+import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
+import WrapTokenModal from './wrapTokenModal'
 
 const InputWrap = styled.div`
   display: flex;
@@ -36,6 +45,7 @@ const StyledBalanceMax = styled.button`
   :focus {
     outline: none;
   }
+  align-items: center;
 `
 
 const ButtonLayout = styled.div`
@@ -148,11 +158,24 @@ export const WrapForm = ({ typeAction }: { typeAction: string }) => {
   web3React = useActiveWeb3React()
   InitWeb3()
   const dispatch = useDispatch<AppDispatch>()
+  const { account, chainId } = useActiveWeb3React()
 
-  const { crosschainTransferStatus } = useCrosschainState()
+  const { crosschainTransferStatus, currentChain } = useCrosschainState()
   const [wrappedAmount, setWrappedAmount] = useState('')
   const [unWrapdAmount, setUnWrapdAmount] = useState('')
   const [confirmTransferModalOpen, setConfirmTransferModalOpen] = useState(false)
+
+  const [modalOpen, setModalOpen] = useState(false)
+  const [isCrossChain, setIsCrossChain] = useState<boolean>(true)
+  const [wrapUnwrap, setWrapUnwrap] = useState(false)
+  const [isSuccessAuth, userEthBalance] = useEagerConnect()
+  const wrappedToken = returnWrappedToken(chainId)
+  const [balance, setBalance] = useState(0)
+
+  const handleDismissSearch = useCallback(() => {
+    setModalOpen(false)
+    setWrapUnwrap(false)
+  }, [setModalOpen])
 
   const getButtonName = () => {
     if (typeAction === 'Wrap') {
@@ -193,11 +216,25 @@ export const WrapForm = ({ typeAction }: { typeAction: string }) => {
     },
     [dispatch]
   )
+  const handleSelectToken = () => {
+    setModalOpen(true)
+    setWrapUnwrap(true)
+  }
+  const balanceFun = async() => {
+   const bal = await getBalance(account, wrappedToken.address)
+   setBalance(parseInt(bal))
+  }
+  useEffect(() => {
+   balanceFun()
+  }, [account, wrappedToken])
+
   return (
     <>
       <WrapWrap>
         <Heading>
-          <Description>{typeAction === 'Wrap' ? 'Wrap Token' : 'UnWrap Token'}</Description>{' '}
+          <Description>
+            {typeAction === 'Wrap' ? wrappedToken.symbol + ' Token' : wrappedToken.name + ' Token'}
+          </Description>{' '}
         </Heading>
         <>
           {!web3React.account && <p>Please connect to wallet</p>}
@@ -205,8 +242,8 @@ export const WrapForm = ({ typeAction }: { typeAction: string }) => {
             <>
               <BelowForm style={{ textAlign: 'end' }}>
                 {typeAction === 'Wrap'
-                  ? `${wrappedAmount ? wrappedAmount : '0.00'} Wrap`
-                  : `${unWrapdAmount ? unWrapdAmount : '0.00'} UnWrap`}
+                  ? `${balance ? balance : '0.00'} ${wrappedToken.symbol}`
+                  : `${userEthBalance ? userEthBalance : '0.00'} ${wrappedToken.name}`}
               </BelowForm>
               <InputWrap>
                 <StyledNumericalInput
@@ -218,8 +255,12 @@ export const WrapForm = ({ typeAction }: { typeAction: string }) => {
                   onChange={e => handleInputAmountChange(e.target.value)}
                 />
 
-                <StyledBalanceMax style={{ right: '30%' }}>MAX </StyledBalanceMax>
-                <StyledBalanceMax>Select Token</StyledBalanceMax>
+                <StyledBalanceMax style={{ right: '25%' }}>MAX </StyledBalanceMax>
+                
+                <StyledBalanceMax >
+                {/* <StyledEthereumLogo  size="30px" style={style} /> */}
+                  <img src={returnWrappedLogo(chainId)}  style={{ verticalAlign:"middle", height:"20px", width:"25px", paddingRight:"5px"}} />
+                  {typeAction === 'Wrap' ? wrappedToken.symbol : wrappedToken.name}</StyledBalanceMax>
               </InputWrap>
               <ButtonLayout>
                 <ButtonGradient onClick={callHander}>{getButtonName()}</ButtonGradient>
@@ -228,7 +269,7 @@ export const WrapForm = ({ typeAction }: { typeAction: string }) => {
           )}
         </>
       </WrapWrap>
-
+      <WrapTokenModal isOpen={modalOpen} onDismiss={handleDismissSearch} typeAction={typeAction} />
       <ConfirmTransferModal
         isOpen={confirmTransferModalOpen}
         onDismiss={hideConfirmTransferModal}
