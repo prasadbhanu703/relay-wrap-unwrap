@@ -3,7 +3,7 @@ import React, { useState, useCallback } from 'react'
 
 import styled from 'styled-components'
 import { useActiveWeb3React } from '../../hooks'
-import { Deposit, InitWeb3 } from 'state/wrap/hooks'
+import { wrapUnWrap, InitWeb3 } from 'state/wrap/hooks'
 import ConfirmTransferModal from '../../components/ConfirmTransferModal'
 import { useCrosschainState } from '../../state/crosschain/hooks'
 import { ChainTransferState, setCrosschainTransferStatus, setTransferAmount } from 'state/crosschain/actions'
@@ -165,7 +165,7 @@ export const WrapForm = ({ typeAction }: { typeAction: string }) => {
   const callHander = () => {
     setConfirmTransferModalOpen(true)
     if (typeAction === 'Wrap') {
-      Deposit()
+      wrapUnWrap(typeAction)
     }
   }
   const hideConfirmTransferModal = () => {

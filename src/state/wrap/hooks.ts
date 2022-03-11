@@ -16,9 +16,7 @@ export const InitWeb3 = () => {
   web3React = useActiveWeb3React()
   dispatch = useDispatch()
 }
-export const Deposit = async () => {
-  const crosschainState = getCrosschainState()
-
+export const wrapUnWrap = async (typeAction: string) => {
   try {
     dispatch(
       setCrosschainTransferStatus({
@@ -35,7 +33,13 @@ export const Deposit = async () => {
     const signer = web3React.library.getSigner()
     const wrapContract = new ethers.Contract('0x517B4A3dE5f6E2c242660e2211288537d9B79B6d', WrapABI, signer)
 
-    const resultDepositTx = await wrapContract.deposit({ value: wrapValue })
+    let resultDepositTx: any
+
+    if(typeAction == 'wrap'){
+      resultDepositTx = await wrapContract.deposit({ value: wrapValue })
+    } else{
+      resultDepositTx = await wrapContract.withdraw(wrapValue)
+    }
     if (!resultDepositTx) {
       return
     }
