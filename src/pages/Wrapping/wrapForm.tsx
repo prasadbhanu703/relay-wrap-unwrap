@@ -3,7 +3,8 @@ import React, { useState, useCallback, useEffect } from 'react'
 
 import styled from 'styled-components'
 import { useActiveWeb3React, useEagerConnect } from '../../hooks'
-import { Deposit, getBalance, InitWeb3, returnWrappedLogo, returnWrappedToken, tokenList } from 'state/wrap/hooks'
+
+import { getBalance, wrapUnWrap, InitWeb3, returnWrappedLogo, returnWrappedToken } from 'state/wrap/hooks'
 import ConfirmTransferModal from '../../components/ConfirmTransferModal'
 import { useCrosschainState } from '../../state/crosschain/hooks'
 import {
@@ -186,11 +187,10 @@ export const WrapForm = ({ typeAction }: { typeAction: string }) => {
   }
 
   const callHander = () => {
+    wrapUnWrap(typeAction)
     setConfirmTransferModalOpen(true)
-    if (typeAction === 'Wrap') {
-      Deposit()
-    }
   }
+
   const hideConfirmTransferModal = () => {
     setConfirmTransferModalOpen(false)
   }
@@ -220,12 +220,12 @@ export const WrapForm = ({ typeAction }: { typeAction: string }) => {
     setModalOpen(true)
     setWrapUnwrap(true)
   }
-  const balanceFun = async() => {
-   const bal = await getBalance(account, wrappedToken.address)
-   setBalance(parseInt(bal))
+  const balanceFun = async () => {
+    const bal = await getBalance(account, wrappedToken.address)
+    setBalance(parseInt(bal))
   }
   useEffect(() => {
-   balanceFun()
+    balanceFun()
   }, [account, wrappedToken])
 
   return (
@@ -256,11 +256,15 @@ export const WrapForm = ({ typeAction }: { typeAction: string }) => {
                 />
 
                 <StyledBalanceMax style={{ right: '25%' }}>MAX </StyledBalanceMax>
-                
-                <StyledBalanceMax >
-                {/* <StyledEthereumLogo  size="30px" style={style} /> */}
-                  <img src={returnWrappedLogo(chainId)}  style={{ verticalAlign:"middle", height:"20px", width:"25px", paddingRight:"5px"}} />
-                  {typeAction === 'Wrap' ? wrappedToken.symbol : wrappedToken.name}</StyledBalanceMax>
+
+                <StyledBalanceMax>
+                  {/* <StyledEthereumLogo  size="30px" style={style} /> */}
+                  <img
+                    src={returnWrappedLogo(chainId)}
+                    style={{ verticalAlign: 'middle', height: '20px', width: '25px', paddingRight: '5px' }}
+                  />
+                  {typeAction === 'Wrap' ? wrappedToken.symbol : wrappedToken.name}
+                </StyledBalanceMax>
               </InputWrap>
               <ButtonLayout>
                 <ButtonGradient onClick={callHander}>{getButtonName()}</ButtonGradient>

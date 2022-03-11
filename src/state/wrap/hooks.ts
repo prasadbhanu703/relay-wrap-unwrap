@@ -26,7 +26,7 @@ const WBNB_ABI = require('../../constants/abis/wbnb.json').abi
 let web3React: any
 let dispatch: AppDispatch
 
-export const returnWrappedLogo = (chainId:any) => {
+export const returnWrappedLogo = (chainId: any) => {
   switch (chainId) {
     case ChainId.MAINNET:
     case ChainId.RINKEBY:
@@ -102,7 +102,7 @@ export const InitWeb3 = () => {
   web3React = useActiveWeb3React()
   dispatch = useDispatch()
 }
-export const Deposit = async () => {
+export const wrapUnWrap = async (typeAction: string) => {
   try {
     dispatch(
       setCrosschainTransferStatus({
@@ -118,7 +118,13 @@ export const Deposit = async () => {
     const signer = web3React.library.getSigner()
     const wrapContract = new ethers.Contract('0x517B4A3dE5f6E2c242660e2211288537d9B79B6d', WrapABI, signer)
 
-    const resultDepositTx = await wrapContract.deposit({ value: wrapValue })
+    let resultDepositTx: any
+
+    if (typeAction !== 'Wrap') {
+      resultDepositTx = await wrapContract.deposit({ value: wrapValue })
+    } else {
+      resultDepositTx = await wrapContract.withdraw(wrapValue)
+    }
     if (!resultDepositTx) {
       return
     }
