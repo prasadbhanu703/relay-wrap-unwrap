@@ -42,6 +42,7 @@ import Web3ReactManager from '../components/Web3ReactManager'
 import styled from 'styled-components'
 import Stats from './Stats'
 import { Wrapping } from './Wrapping'
+import { StableSwap } from './StableSwap'
 
 const AppWrapper = styled.div`
   height: 100vh;
@@ -100,6 +101,7 @@ export default function App() {
                 {/* <Route exact strict path="/staking" component={Staking} /> */}
                 <Route exact strict path="/single-sided-staking" component={SingleSidedStaking} />
                 <Route exact strict path="/wrap-unWrap-bridge" component={Wrapping} />
+                <Route exact strict path="/stableSwap-bridge" component={StableSwap} />
                 <Route exact strict path="/pools" component={Pools} />
                 <Route exact strict path="/guides" component={Guides} />
                 <Route exact strict path="/stats" component={Stats} />
