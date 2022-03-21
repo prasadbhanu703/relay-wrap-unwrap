@@ -1,6 +1,7 @@
 import { BigNumber, ethers, utils } from 'ethers'
 import { ButtonGradient } from '../../components/Button'
 import React, { useState, useCallback, useEffect } from 'react'
+import { NETWORK_LABELS, NETWORK_SYMBOLS } from '@zeroexchange/sdk'
 
 import styled from 'styled-components'
 import { useActiveWeb3React, useEagerConnect } from '../../hooks'
@@ -24,6 +25,7 @@ import {
 } from 'state/crosschain/actions'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from 'state'
+import BlockchainLogo from 'components/BlockchainLogo'
 
 const InputWrap = styled.div`
   display: flex;
@@ -279,7 +281,7 @@ export const SwapForm = (props: any) => {
   }
   const hideConfirmTransferModal = () => {
     setConfirmTransferModalOpen(false)
-    if(isApprove) {
+    if (isApprove) {
       getAllowanceFun()
     }
   }
@@ -311,11 +313,17 @@ export const SwapForm = (props: any) => {
                 {/* <StyledBalanceMax style={{ right: '28%' }}>MAX </StyledBalanceMax> */}
 
                 <StyledBalanceMax>
-                  {/* <StyledEthereumLogo  size="30px" style={style} /> */}
-                  <img
-                    src={returnWrappedLogo(chainId)}
+                  <BlockchainLogo
+                    size="34px"
+                    blockchain={chainId ? NETWORK_LABELS[chainId] : 'Ethereum'}
                     style={{ verticalAlign: 'middle', height: '20px', width: '25px', paddingRight: '5px' }}
                   />
+                  {/* <StyledEthereumLogo  size="30px" style={style} /> */}
+                  {/* <img
+                    // src={returnWrappedLogo(chainId)}
+                    src={NETWORK_LABELS[chainId]}
+                    style={{ verticalAlign: 'middle', height: '20px', width: '25px', paddingRight: '5px' }}
+                  /> */}
                   {typeAction === 'Relay' ? stableSwapToken.symbol : stableSwapToken.name}
                 </StyledBalanceMax>
               </InputWrap>
