@@ -375,7 +375,7 @@ export const CHAIN_LABELS: { [chainId in ChainId]?: string } = {
   [ChainId.FUJI]: 'Avalanche',
   [ChainId.AVALANCHE]: 'Avalanche',
   [ChainId.SMART_CHAIN]: 'Smart Chain',
-  [ChainId.SMART_CHAIN_TEST]: 'Smart Chain Testnet',
+  [ChainId.SMART_CHAIN_TEST]: 'Smart Testnet',
   [ChainId.MOONBASE_ALPHA]: 'Moonbeam',
   [ChainId.MUMBAI]: 'Mumbai',
   [ChainId.MATIC]: 'Polygon',
